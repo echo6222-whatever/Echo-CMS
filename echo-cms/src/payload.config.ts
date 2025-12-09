@@ -14,6 +14,7 @@ const connectionStr = process.env.POSTGRES_URL || process.env.DATABASE_URL
 if (!connectionStr) {
   throw new Error('Missing DB connection string — set POSTGRES_URL or DATABASE_URL in Vercel env vars')
 }
+//test
 
 export default buildConfig({
   admin: {
