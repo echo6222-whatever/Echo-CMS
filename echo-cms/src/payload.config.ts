@@ -10,6 +10,10 @@ import { Media } from './collections/Media'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL
+if (!connectionString) {
+  throw new Error('Missing DB connection string — set POSTGRES_URL or DATABASE_URL in Vercel env vars')
+}
 
 export default buildConfig({
   admin: {
@@ -26,7 +30,7 @@ export default buildConfig({
   },
   db: vercelPostgresAdapter({
     pool: {
-      connectionString: process.env.POSTGRES_URL || '',
+      connectionString,
     },
   }),
   sharp,
