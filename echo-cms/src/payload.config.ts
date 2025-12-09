@@ -15,6 +15,11 @@ if (!connectionStr) {
   console.warn('No POSTGRES_URL/DATABASE_URL set — skipping DB adapter for build-time.')
 }
 
+const payloadSecret = process.env.PAYLOAD_SECRET
+if (!payloadSecret) {
+  throw new Error('Missing PAYLOAD_SECRET — set PAYLOAD_SECRET in Vercel (Build + Production) and locally (.env.local)')
+}
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -24,7 +29,7 @@ export default buildConfig({
   },
   collections: [Users, Media],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: payloadSecret,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
