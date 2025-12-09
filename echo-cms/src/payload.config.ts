@@ -1,4 +1,6 @@
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -20,6 +22,9 @@ if (!payloadSecret) {
   throw new Error('Missing PAYLOAD_SECRET — set PAYLOAD_SECRET in Vercel (Build + Production) and locally (.env.local)')
 }
 
+const enablePostgres = !!process.env.POSTGRES_URL
+const enableBlob = !!process.env.BLOB_READ_WRITE_TOKEN
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -39,5 +44,18 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    ...(process.env.PAYLOAD_CLOUD ? [payloadCloudPlugin()] : []), // requires install + import OR remove entirely
+    ...(enableBlob
+      ? [
+          vercelBlobStorage({
+            enabled: true,
+            collections: { media: true },
+            token: process.env.BLOB_READ_WRITE_TOKEN,
+            clientUploads: true,
+          }),
+        ]
+      : []),
+  ],
 })
+
